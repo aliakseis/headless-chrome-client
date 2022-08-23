@@ -11,6 +11,8 @@
 
 #include <QJsonDocument>
 
+#include <iostream>
+
 static QString getWebSocketDebuggerUrl()
 {
     QNetworkAccessManager    networkAccessManager;
@@ -63,6 +65,12 @@ static QString getWebSocketDebuggerUrl()
 
 int main(int argc, char *argv[])
 {
+    if (argc < 2)
+    {
+        std::cerr << "Usage: \"" << argv[0] << "\" url\n";
+        return 1;
+    }
+
     QApplication a(argc, argv);
 
     QProcess mGstProcess;
@@ -82,7 +90,7 @@ int main(int argc, char *argv[])
         webSocketDebuggerUrl = getWebSocketDebuggerUrl();
     }
 
-    EchoClient client(webSocketDebuggerUrl, "https://vdo.ninja/?view=myPNnF8", 1024, 600);
+    EchoClient client(webSocketDebuggerUrl, argv[1], 1024, 600);
     QObject::connect(&client, &EchoClient::closed, &a, &QCoreApplication::quit);
 
     MainWindow w;
