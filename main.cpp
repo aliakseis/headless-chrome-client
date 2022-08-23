@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
         webSocketDebuggerUrl = getWebSocketDebuggerUrl();
     }
 
-    EchoClient client(webSocketDebuggerUrl, "https://www.youtube.com/watch?v=afZu1hxAQQ0", 1024, 600);
+    EchoClient client(webSocketDebuggerUrl, "https://vdo.ninja/?view=myPNnF8", 1024, 600);
     QObject::connect(&client, &EchoClient::closed, &a, &QCoreApplication::quit);
 
     MainWindow w;
