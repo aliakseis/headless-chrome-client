@@ -57,7 +57,9 @@ class EchoClient : public QObject
 {
     Q_OBJECT
 public:
-    explicit EchoClient(const QUrl &url, bool debug = false, QObject *parent = nullptr);
+    explicit EchoClient(const QUrl& webSocketUrl, const QString &url,
+                        int width, int height,
+                        bool debug = false, QObject *parent = nullptr);
 
 Q_SIGNALS:
     void closed();
@@ -71,10 +73,13 @@ private Q_SLOTS:
 
 private:
     QWebSocket m_webSocket;
-    QUrl m_url;
+    QString m_url;
     bool m_debug;
     int m_id{};
     //int m_clicked = 2;
+
+    int m_width;
+    int m_height;
 };
 
 #endif // ECHOCLIENT_H

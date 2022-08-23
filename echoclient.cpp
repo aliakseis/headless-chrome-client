@@ -56,16 +56,19 @@
 QT_USE_NAMESPACE
 
 //! [constructor]
-EchoClient::EchoClient(const QUrl &url, bool debug, QObject *parent) :
+EchoClient::EchoClient(const QUrl& webSocketUrl, const QString &url,
+                       int width, int height, bool debug, QObject *parent) :
     QObject(parent),
     m_url(url),
+    m_width(width),
+    m_height(height),
     m_debug(debug)
 {
     if (m_debug)
         qDebug() << "WebSocket server:" << url;
     connect(&m_webSocket, &QWebSocket::connected, this, &EchoClient::onConnected);
     connect(&m_webSocket, &QWebSocket::disconnected, this, &EchoClient::closed);
-    m_webSocket.open(QUrl(url));
+    m_webSocket.open(webSocketUrl);
 }
 //! [constructor]
 
@@ -78,10 +81,12 @@ void EchoClient::onConnected()
     connect(&m_webSocket, &QWebSocket::binaryMessageReceived, this, &EchoClient::onBinaryMessageReceived);
 
     m_webSocket.sendTextMessage(QStringLiteral("{ \"id\": 1, \"method\": \"Page.enable\", \"params\": {} }"));
-    m_webSocket.sendTextMessage(QStringLiteral(
-        "{ \"id\": 2, \"method\": \"Page.setDeviceMetricsOverride\", \"params\": { \"width\" : 1024, \"height\" : 600, \"deviceScaleFactor\" : 1, \"mobile\" : false } }"));
+    m_webSocket.sendTextMessage(
+        QStringLiteral("{ \"id\": 2, \"method\": \"Page.setDeviceMetricsOverride\", \"params\": { \"width\" : ") + QString::number(m_width)
+        + QStringLiteral(", \"height\" : ") + QString::number(m_height) + QStringLiteral(", \"deviceScaleFactor\" : 1, \"mobile\" : false } }"));
     m_webSocket.sendTextMessage(QStringLiteral("{ \"id\": 3, \"method\": \"Page.startScreencast\", \"params\": {} }"));
-    m_webSocket.sendTextMessage(QStringLiteral("{ \"id\": 4, \"method\": \"Page.navigate\", \"params\": { \"url\": \"https://www.youtube.com/watch?v=afZu1hxAQQ0\" } }"));
+    m_webSocket.sendTextMessage(
+        QStringLiteral("{ \"id\": 4, \"method\": \"Page.navigate\", \"params\": { \"url\": \"") + m_url + QStringLiteral("\" } }"));
     m_id = 5;
 }
 //! [onConnected]

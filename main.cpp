@@ -82,8 +82,7 @@ int main(int argc, char *argv[])
         webSocketDebuggerUrl = getWebSocketDebuggerUrl();
     }
 
-    bool debug = false;
-    EchoClient client(QUrl(webSocketDebuggerUrl), debug);
+    EchoClient client(webSocketDebuggerUrl, "https://www.youtube.com/watch?v=afZu1hxAQQ0", 1024, 600);
     QObject::connect(&client, &EchoClient::closed, &a, &QCoreApplication::quit);
 
     MainWindow w;
