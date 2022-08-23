@@ -81,11 +81,12 @@ int main(int argc, char *argv[])
 
     if (webSocketDebuggerUrl.isEmpty())
     {
-        const auto split = QSettings("HKEY_CLASSES_ROOT\\ChromeHTML\\shell\\open\\command", QSettings::NativeFormat).value(".")
+        const auto split = QSettings(R"(HKEY_CLASSES_ROOT\ChromeHTML\shell\open\command)", QSettings::NativeFormat).value(".")
             .toString().split('"', QString::SkipEmptyParts);
 
-        if (split.empty())
+        if (split.empty()) {
             return 1;
+}
 
         const auto path = split[0];
 
@@ -108,5 +109,5 @@ int main(int argc, char *argv[])
     QObject::connect(&client, &EchoClient::dataReceived, &w, &MainWindow::onDataReceived);
 
     w.show();
-    return a.exec();
+    return QApplication::exec();
 }

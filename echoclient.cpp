@@ -60,12 +60,13 @@ EchoClient::EchoClient(const QUrl& webSocketUrl, const QString &url,
                        int width, int height, bool debug, QObject *parent) :
     QObject(parent),
     m_url(url),
+    m_debug(debug),
     m_width(width),
-    m_height(height),
-    m_debug(debug)
+    m_height(height)
 {
-    if (m_debug)
+    if (m_debug) {
         qDebug() << "WebSocket server:" << url;
+}
     connect(&m_webSocket, &QWebSocket::connected, this, &EchoClient::onConnected);
     connect(&m_webSocket, &QWebSocket::disconnected, this, &EchoClient::closed);
     m_webSocket.open(webSocketUrl);
@@ -75,8 +76,9 @@ EchoClient::EchoClient(const QUrl& webSocketUrl, const QString &url,
 //! [onConnected]
 void EchoClient::onConnected()
 {
-    if (m_debug)
+    if (m_debug) {
         qDebug() << "WebSocket connected";
+}
     connect(&m_webSocket, &QWebSocket::textMessageReceived, this, &EchoClient::onTextMessageReceived);
     connect(&m_webSocket, &QWebSocket::binaryMessageReceived, this, &EchoClient::onBinaryMessageReceived);
 
@@ -99,7 +101,7 @@ void EchoClient::onClosed()
 
 
 //! [onTextMessageReceived]
-void EchoClient::onTextMessageReceived(QString message)
+void EchoClient::onTextMessageReceived(const QString& message)
 {
     QByteArray ba = message.toUtf8();
 
@@ -150,16 +152,18 @@ void EchoClient::onTextMessageReceived(QString message)
     }
     else
     {
-        if (m_debug)
+        if (m_debug) {
             qDebug() << "Message received:" << message;
+}
     }
     //m_webSocket.close();
 }
 //! [onTextMessageReceived]
 
-void EchoClient::onBinaryMessageReceived(QByteArray message)
+void EchoClient::onBinaryMessageReceived(const QByteArray& message)
 {
-    if (m_debug)
+    if (m_debug) {
         qDebug() << "Message received:" << message;
+}
     //m_webSocket.close();
 }

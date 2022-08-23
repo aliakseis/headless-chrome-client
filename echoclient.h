@@ -67,9 +67,9 @@ Q_SIGNALS:
 
 private Q_SLOTS:
     void onConnected();
-    void onClosed();
-    void onTextMessageReceived(QString message);
-    void onBinaryMessageReceived(QByteArray message);
+    static void onClosed();
+    void onTextMessageReceived(const QString& message);
+    void onBinaryMessageReceived(const QByteArray& message);
 
 private:
     QWebSocket m_webSocket;
