@@ -66,7 +66,7 @@ EchoClient::EchoClient(const QUrl& webSocketUrl, const QString &url,
 {
     if (m_debug) {
         qDebug() << "WebSocket server:" << url;
-}
+    }
     connect(&m_webSocket, &QWebSocket::connected, this, &EchoClient::onConnected);
     connect(&m_webSocket, &QWebSocket::disconnected, this, &EchoClient::closed);
     m_webSocket.open(webSocketUrl);
@@ -78,7 +78,7 @@ void EchoClient::onConnected()
 {
     if (m_debug) {
         qDebug() << "WebSocket connected";
-}
+    }
     connect(&m_webSocket, &QWebSocket::textMessageReceived, this, &EchoClient::onTextMessageReceived);
     connect(&m_webSocket, &QWebSocket::binaryMessageReceived, this, &EchoClient::onBinaryMessageReceived);
 
@@ -154,7 +154,7 @@ void EchoClient::onTextMessageReceived(const QString& message)
     {
         if (m_debug) {
             qDebug() << "Message received:" << message;
-}
+        }
     }
     //m_webSocket.close();
 }
@@ -164,6 +164,6 @@ void EchoClient::onBinaryMessageReceived(const QByteArray& message)
 {
     if (m_debug) {
         qDebug() << "Message received:" << message;
-}
+    }
     //m_webSocket.close();
 }

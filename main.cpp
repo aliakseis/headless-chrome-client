@@ -22,18 +22,18 @@ static QString getWebSocketDebuggerUrl()
 
     QNetworkReply* reply = networkAccessManager.get(request);
 
-    QEventLoop m_requrestWaitLoop;
+    QEventLoop requrestWaitLoop;
 
-    int m_redirectCount = 0;
+    int redirectCount = 0;
     enum { REDIRECT_LIMIT = 10 };
 
     QByteArray syncResult;
 
     std::function<void()> finishedLam;
-    finishedLam = [&reply, &m_redirectCount, &networkAccessManager, &finishedLam, &m_requrestWaitLoop, &syncResult] {
+    finishedLam = [&reply, &redirectCount, &networkAccessManager, &finishedLam, &requrestWaitLoop, &syncResult] {
         QVariant possibleRedirectUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
 
-        if (!possibleRedirectUrl.isNull() && m_redirectCount++ < REDIRECT_LIMIT)
+        if (!possibleRedirectUrl.isNull() && redirectCount++ < REDIRECT_LIMIT)
         {
             QUrl redirect = possibleRedirectUrl.toUrl();
             QUrl url = reply->url();
@@ -48,14 +48,14 @@ static QString getWebSocketDebuggerUrl()
         }
 
         syncResult = reply->readAll();
-        m_requrestWaitLoop.quit();
+        requrestWaitLoop.quit();
         reply->deleteLater();
         reply = nullptr;
     };
 
     QObject::connect(reply, &QNetworkReply::finished, finishedLam);
 
-    m_requrestWaitLoop.exec();
+    requrestWaitLoop.exec();
 
     qDebug() << syncResult;
 
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 
     QApplication a(argc, argv);
 
-    QProcess mGstProcess;
+    QProcess chromeProces;
 
     auto webSocketDebuggerUrl = getWebSocketDebuggerUrl();
 
@@ -86,12 +86,12 @@ int main(int argc, char *argv[])
 
         if (split.empty()) {
             return 1;
-}
+        }
 
         const auto path = split[0];
 
-        mGstProcess.start(path, { "--remote-debugging-port=9222", "--headless" });
-        if( !mGstProcess.waitForStarted( 5000 ) )
+        chromeProces.start(path, { "--remote-debugging-port=9222", "--headless" });
+        if( !chromeProces.waitForStarted( 5000 ) )
         {
             // TODO Camera error message
             qDebug() << "Timed out starting a child process";
