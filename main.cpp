@@ -11,6 +11,8 @@
 
 #include <QJsonDocument>
 
+#include <QSettings>
+
 #include <iostream>
 
 static QString getWebSocketDebuggerUrl()
@@ -79,7 +81,15 @@ int main(int argc, char *argv[])
 
     if (webSocketDebuggerUrl.isEmpty())
     {
-        mGstProcess.start( "C:/Progra~2/Google/Chrome/Application/chrome.exe --remote-debugging-port=9222 --headless" );
+        const auto split = QSettings("HKEY_CLASSES_ROOT\\ChromeHTML\\shell\\open\\command", QSettings::NativeFormat).value(".")
+            .toString().split('"', QString::SkipEmptyParts);
+
+        if (split.empty())
+            return 1;
+
+        const auto path = split[0];
+
+        mGstProcess.start(path, { "--remote-debugging-port=9222", "--headless" });
         if( !mGstProcess.waitForStarted( 5000 ) )
         {
             // TODO Camera error message
