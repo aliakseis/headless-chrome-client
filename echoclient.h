@@ -74,7 +74,7 @@ private:
     QUrl m_url;
     bool m_debug;
     int m_id{};
-    //int m_countdown = 50;
+    //int m_clicked = 2;
 };
 
 #endif // ECHOCLIENT_H

@@ -11,21 +11,8 @@
 
 #include <QJsonDocument>
 
-int main(int argc, char *argv[])
+static QString getWebSocketDebuggerUrl()
 {
-    QApplication a(argc, argv);
-
-    QProcess mGstProcess;
-
-    mGstProcess.start( "C:/Progra~2/Google/Chrome/Application/chrome.exe --remote-debugging-port=9222 --headless" );
-    if( !mGstProcess.waitForStarted( 5000 ) )
-    {
-        // TODO Camera error message
-        qDebug() << "Timed out starting a child process";
-        return 1;
-    }
-
-
     QNetworkAccessManager    networkAccessManager;
     QNetworkRequest request(QStringLiteral("http://localhost:9222/json/list"));
 
@@ -70,9 +57,32 @@ int main(int argc, char *argv[])
 
     auto doc = QJsonDocument::fromJson(syncResult);
 
-    auto webSocketDebuggerUrl = doc[0]["webSocketDebuggerUrl"].toString();
+    return doc[0]["webSocketDebuggerUrl"].toString();
+}
 
-    bool debug = true;
+
+int main(int argc, char *argv[])
+{
+    QApplication a(argc, argv);
+
+    QProcess mGstProcess;
+
+    auto webSocketDebuggerUrl = getWebSocketDebuggerUrl();
+
+    if (webSocketDebuggerUrl.isEmpty())
+    {
+        mGstProcess.start( "C:/Progra~2/Google/Chrome/Application/chrome.exe --remote-debugging-port=9222 --headless" );
+        if( !mGstProcess.waitForStarted( 5000 ) )
+        {
+            // TODO Camera error message
+            qDebug() << "Timed out starting a child process";
+            return 1;
+        }
+
+        webSocketDebuggerUrl = getWebSocketDebuggerUrl();
+    }
+
+    bool debug = false;
     EchoClient client(QUrl(webSocketDebuggerUrl), debug);
     QObject::connect(&client, &EchoClient::closed, &a, &QCoreApplication::quit);
 

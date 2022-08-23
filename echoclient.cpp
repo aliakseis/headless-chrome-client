@@ -78,9 +78,11 @@ void EchoClient::onConnected()
     connect(&m_webSocket, &QWebSocket::binaryMessageReceived, this, &EchoClient::onBinaryMessageReceived);
 
     m_webSocket.sendTextMessage(QStringLiteral("{ \"id\": 1, \"method\": \"Page.enable\", \"params\": {} }"));
-    m_webSocket.sendTextMessage(QStringLiteral("{ \"id\": 2, \"method\": \"Page.startScreencast\", \"params\": {} }"));
-    m_webSocket.sendTextMessage(QStringLiteral("{ \"id\": 3, \"method\": \"Page.navigate\", \"params\": { \"url\": \"https://www.youtube.com/watch?v=afZu1hxAQQ0\" } }"));
-    m_id = 4;
+    m_webSocket.sendTextMessage(QStringLiteral(
+        "{ \"id\": 2, \"method\": \"Page.setDeviceMetricsOverride\", \"params\": { \"width\" : 1024, \"height\" : 600, \"deviceScaleFactor\" : 1, \"mobile\" : false } }"));
+    m_webSocket.sendTextMessage(QStringLiteral("{ \"id\": 3, \"method\": \"Page.startScreencast\", \"params\": {} }"));
+    m_webSocket.sendTextMessage(QStringLiteral("{ \"id\": 4, \"method\": \"Page.navigate\", \"params\": { \"url\": \"https://www.youtube.com/watch?v=afZu1hxAQQ0\" } }"));
+    m_id = 5;
 }
 //! [onConnected]
 
@@ -94,24 +96,21 @@ void EchoClient::onClosed()
 //! [onTextMessageReceived]
 void EchoClient::onTextMessageReceived(QString message)
 {
-    //if (m_debug)
-    //    qDebug() << "Message received:" << message;
-
     QByteArray ba = message.toUtf8();
 
     auto doc = QJsonDocument::fromJson(ba);
 
     QString docMethod = doc["method"].toString();
     if (docMethod == "Page.screencastFrame")
-    {
-        //if (m_debug) {
-        //    qDebug() << "Message received start: " << message.left(1000);
-        //    qDebug() << "Message received end: " << message.right(1000);
-        //}
+    {        
+        if (m_debug) {
+            qDebug() << "Message received start: " << message.left(1000);
+            qDebug() << "Message received end: " << message.right(1000);
+        }
 
-        auto params = doc["params"];
-        auto data = params["data"].toString();
-        auto bin = QByteArray::fromBase64(data.toLatin1());
+        const auto params = doc["params"];
+        const auto data = params["data"].toString();
+        const auto bin = QByteArray::fromBase64(data.toLatin1());
         emit dataReceived(bin);
 
         const auto sessionId = params["sessionId"].toInt();
@@ -123,15 +122,31 @@ void EchoClient::onTextMessageReceived(QString message)
 
         m_webSocket.sendTextMessage(s);
 
-        //if (m_countdown == 1)
+        //if (m_clicked > 0) // looks like a double click
         {
-            m_webSocket.sendTextMessage(QStringLiteral("{ \"id\": ") + QString::number(m_id++) + QStringLiteral(", \"method\": \"Input.dispatchMouseEvent\","
-                                                       " \"params\": { \"type\" : \"mousePressed\", \"x\" : 400, \"y\" : 270, \"button\" : \"left\" } }"));
-            m_webSocket.sendTextMessage(QStringLiteral("{ \"id\": ") + QString::number(m_id++) + QStringLiteral(", \"method\": \"Input.dispatchMouseEvent\","
-                                                       " \"params\": { \"type\" : \"mouseReleased\", \"x\" : 400, \"y\" : 270, \"button\" : \"left\" } }"));
-            //m_id = 6;
+            // \"metadata\":{\"offsetTop\":0,\"pageScaleFactor\":1,\"deviceWidth\":800,\"deviceHeight\":600,\"scrollOffsetX\":0,\"scrollOffsetY\":0,\"timestamp\":1661238724.105544}
+            /*
+            const auto metadata = params["metadata"];
+            const auto deviceWidth = metadata["deviceWidth"].toInt();
+            const auto deviceHeight = metadata["deviceHeight"].toInt();
+            */
+
+            const auto x = QStringLiteral("100");//QString::number(deviceWidth / 2);
+            const auto y = QStringLiteral("100");//QString::number(deviceHeight / 2 - 30);
+
+            m_webSocket.sendTextMessage(
+                        QStringLiteral("{ \"id\": ") + QString::number(m_id++) + QStringLiteral(", \"method\": \"Input.dispatchMouseEvent\","
+                            " \"params\": { \"type\" : \"mousePressed\", \"x\" : ") + x + QStringLiteral(", \"y\" : ") + y + QStringLiteral(", \"button\" : \"left\" } }"));
+            m_webSocket.sendTextMessage(
+                        QStringLiteral("{ \"id\": ") + QString::number(m_id++) + QStringLiteral(", \"method\": \"Input.dispatchMouseEvent\","
+                            " \"params\": { \"type\" : \"mouseReleased\", \"x\" : ") + x + QStringLiteral(", \"y\" : ") + y + QStringLiteral(", \"button\" : \"left\" } }"));
+            //--m_clicked;
         }
-        //--m_countdown;
+    }
+    else
+    {
+        if (m_debug)
+            qDebug() << "Message received:" << message;
     }
     //m_webSocket.close();
 }
