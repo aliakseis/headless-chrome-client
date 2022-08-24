@@ -53,6 +53,11 @@
 #include <QJsonDocument>
 #include <QByteArray>
 
+template<typename T>
+auto num(T v)
+{
+    return QString::number(v);
+}
 
 #define S(...) QStringLiteral(#__VA_ARGS__)
 
@@ -85,8 +90,8 @@ void EchoClient::onConnected()
 
     m_webSocket.sendTextMessage(S({ "id": 1, "method": "Page.enable", "params": {} }));
     m_webSocket.sendTextMessage(
-        S({ "id": 2, "method": "Page.setDeviceMetricsOverride", "params": { "width" : ) + QString::number(m_width)
-        + S(, "height" : ) + QString::number(m_height) + S(, "deviceScaleFactor" : 1, "mobile" : false } }));
+        S({ "id": 2, "method": "Page.setDeviceMetricsOverride", "params": { "width" : ) + num(m_width)
+        + S(, "height" : ) + num(m_height) + S(, "deviceScaleFactor" : 1, "mobile" : false } }));
     m_webSocket.sendTextMessage(S({ "id": 3, "method": "Page.startScreencast", "params": {} }));
     m_webSocket.sendTextMessage(
         S({ "id": 4, "method": "Page.navigate", "params": { "url": ) + '"' + m_url + '"' + S( } }));
@@ -122,13 +127,9 @@ void EchoClient::onTextMessageReceived(const QString& message)
         emit dataReceived(bin);
 
         const auto sessionId = params["sessionId"].toInt();
-        QString s = S({ "id": )
-                + QString::number(m_id++)
-                + S(, "method": "Page.screencastFrameAck", "params": { "sessionId": )
-                + QString::number(sessionId)
-                + S( } });
-
-        m_webSocket.sendTextMessage(s);
+        m_webSocket.sendTextMessage(
+            S({ "id":) + num(m_id++) + S(, "method": "Page.screencastFrameAck", "params" : { "sessionId":) 
+            + num(sessionId) + S(} }));
 
         //if (m_clicked > 0) // looks like a double click
         {
@@ -139,15 +140,15 @@ void EchoClient::onTextMessageReceived(const QString& message)
             const auto deviceHeight = metadata["deviceHeight"].toInt();
             */
 
-            const auto x = QStringLiteral("100");//QString::number(deviceWidth / 2);
-            const auto y = QStringLiteral("100");//QString::number(deviceHeight / 2 - 30);
+            const auto x = QStringLiteral("100");//num(deviceWidth / 2);
+            const auto y = QStringLiteral("100");//num(deviceHeight / 2 - 30);
 
             m_webSocket.sendTextMessage(
-                        S({ "id": ) + QString::number(m_id++) + S(, "method": "Input.dispatchMouseEvent",
-                            "params": { "type" : "mousePressed", "x" : ) + x + S(, "y" : ) + y + S(, "button" : "left" } }));
+                S({ "id": ) + num(m_id++) + S(, "method": "Input.dispatchMouseEvent",
+                    "params": { "type" : "mousePressed", "x" : ) + x + S(, "y" : ) + y + S(, "button" : "left" } }));
             m_webSocket.sendTextMessage(
-                        S({ "id": ) + QString::number(m_id++) + S(, "method": "Input.dispatchMouseEvent",
-                            "params": { "type" : "mouseReleased", "x" : ) + x + S(, "y" : ) + y + S(, "button" : "left" } }));
+                S({ "id": ) + num(m_id++) + S(, "method": "Input.dispatchMouseEvent",
+                    "params": { "type" : "mouseReleased", "x" : ) + x + S(, "y" : ) + y + S(, "button" : "left" } }));
             //--m_clicked;
         }
     }
