@@ -53,7 +53,8 @@
 #include <QJsonDocument>
 #include <QByteArray>
 
-QT_USE_NAMESPACE
+
+#define S(...) QStringLiteral(#__VA_ARGS__)
 
 //! [constructor]
 EchoClient::EchoClient(const QUrl& webSocketUrl, const QString &url,
@@ -82,13 +83,13 @@ void EchoClient::onConnected()
     connect(&m_webSocket, &QWebSocket::textMessageReceived, this, &EchoClient::onTextMessageReceived);
     connect(&m_webSocket, &QWebSocket::binaryMessageReceived, this, &EchoClient::onBinaryMessageReceived);
 
-    m_webSocket.sendTextMessage(QStringLiteral("{ \"id\": 1, \"method\": \"Page.enable\", \"params\": {} }"));
+    m_webSocket.sendTextMessage(S({ "id": 1, "method": "Page.enable", "params": {} }));
     m_webSocket.sendTextMessage(
-        QStringLiteral("{ \"id\": 2, \"method\": \"Page.setDeviceMetricsOverride\", \"params\": { \"width\" : ") + QString::number(m_width)
-        + QStringLiteral(", \"height\" : ") + QString::number(m_height) + QStringLiteral(", \"deviceScaleFactor\" : 1, \"mobile\" : false } }"));
-    m_webSocket.sendTextMessage(QStringLiteral("{ \"id\": 3, \"method\": \"Page.startScreencast\", \"params\": {} }"));
+        S({ "id": 2, "method": "Page.setDeviceMetricsOverride", "params": { "width" : ) + QString::number(m_width)
+        + S(, "height" : ) + QString::number(m_height) + S(, "deviceScaleFactor" : 1, "mobile" : false } }));
+    m_webSocket.sendTextMessage(S({ "id": 3, "method": "Page.startScreencast", "params": {} }));
     m_webSocket.sendTextMessage(
-        QStringLiteral("{ \"id\": 4, \"method\": \"Page.navigate\", \"params\": { \"url\": \"") + m_url + QStringLiteral("\" } }"));
+        S({ "id": 4, "method": "Page.navigate", "params": { "url": ) + '"' + m_url + '"' + S( } }));
     m_id = 5;
 }
 //! [onConnected]
@@ -121,11 +122,11 @@ void EchoClient::onTextMessageReceived(const QString& message)
         emit dataReceived(bin);
 
         const auto sessionId = params["sessionId"].toInt();
-        QString s = QStringLiteral("{ \"id\": ")
+        QString s = S({ "id": )
                 + QString::number(m_id++)
-                + QStringLiteral(", \"method\": \"Page.screencastFrameAck\", \"params\": { \"sessionId\": ")
+                + S(, "method": "Page.screencastFrameAck", "params": { "sessionId": )
                 + QString::number(sessionId)
-                + QStringLiteral(" } }");
+                + S( } });
 
         m_webSocket.sendTextMessage(s);
 
@@ -142,11 +143,11 @@ void EchoClient::onTextMessageReceived(const QString& message)
             const auto y = QStringLiteral("100");//QString::number(deviceHeight / 2 - 30);
 
             m_webSocket.sendTextMessage(
-                        QStringLiteral("{ \"id\": ") + QString::number(m_id++) + QStringLiteral(", \"method\": \"Input.dispatchMouseEvent\","
-                            " \"params\": { \"type\" : \"mousePressed\", \"x\" : ") + x + QStringLiteral(", \"y\" : ") + y + QStringLiteral(", \"button\" : \"left\" } }"));
+                        S({ "id": ) + QString::number(m_id++) + S(, "method": "Input.dispatchMouseEvent",
+                            "params": { "type" : "mousePressed", "x" : ) + x + S(, "y" : ) + y + S(, "button" : "left" } }));
             m_webSocket.sendTextMessage(
-                        QStringLiteral("{ \"id\": ") + QString::number(m_id++) + QStringLiteral(", \"method\": \"Input.dispatchMouseEvent\","
-                            " \"params\": { \"type\" : \"mouseReleased\", \"x\" : ") + x + QStringLiteral(", \"y\" : ") + y + QStringLiteral(", \"button\" : \"left\" } }"));
+                        S({ "id": ) + QString::number(m_id++) + S(, "method": "Input.dispatchMouseEvent",
+                            "params": { "type" : "mouseReleased", "x" : ) + x + S(, "y" : ) + y + S(, "button" : "left" } }));
             //--m_clicked;
         }
     }
