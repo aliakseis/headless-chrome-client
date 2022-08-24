@@ -82,13 +82,13 @@ int main(int argc, char *argv[])
     if (webSocketDebuggerUrl.isEmpty())
     {
         const auto split = QSettings(R"(HKEY_CLASSES_ROOT\ChromeHTML\shell\open\command)", QSettings::NativeFormat).value(".")
-            .toString().split('"', QString::SkipEmptyParts);
+            .toString().split('"');
 
-        if (split.empty()) {
+        if (split.length() < 2) {
             return 1;
         }
 
-        const auto path = split[0];
+        const auto path = split[1];
 
         chromeProces.start(path, { "--remote-debugging-port=9222", "--headless" });
         if( !chromeProces.waitForStarted( 5000 ) )
