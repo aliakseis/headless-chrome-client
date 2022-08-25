@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
         webSocketDebuggerUrl = getWebSocketDebuggerUrl();
     }
 
-    EchoClient client(webSocketDebuggerUrl, argv[1], 1024, 600);
+    EchoClient client(webSocketDebuggerUrl, argv[1], 1024, 600, true);
     QObject::connect(&client, &EchoClient::closed, &a, &QCoreApplication::quit);
 
     MainWindow w;
