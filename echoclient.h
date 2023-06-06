@@ -76,7 +76,8 @@ private:
     QString m_url;
     bool m_debug;
     int m_id{};
-    //int m_clicked = 2;
+    //int m_pressedId = 0;
+    bool m_clicked = false;
 
     int m_width;
     int m_height;

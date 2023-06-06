@@ -53,6 +53,8 @@
 #include <QJsonDocument>
 #include <QByteArray>
 
+#include <QTimer>
+
 template<typename T>
 auto num(T v)
 {
@@ -113,6 +115,30 @@ void EchoClient::onTextMessageReceived(const QString& message)
 
     auto doc = QJsonDocument::fromJson(ba);
 
+    /*
+    auto ret_id = doc["id"];
+    if (!ret_id.isNull())
+    {
+        auto v = ret_id.toInt();
+        if (v != 0 && v == m_pressedId)
+        {
+            const auto x = QStringLiteral("75");//num(deviceWidth / 2);
+            const auto y = QStringLiteral("460");//num(deviceHeight / 2 - 30);
+
+            //m_webSocket.sendTextMessage(
+            //    S({ "id": ) + num(m_id++) + S(, "method": "Input.dispatchMouseEvent",
+            //        "params": { "type" : "mousePressed", "x" : ) + x + S(, "y" : ) + y + S(, "button" : "left" } }));
+            m_webSocket.sendTextMessage(
+                S({ "id":) + num(m_id++) + S(, "method": "Input.dispatchMouseEvent",
+                    "params" : { "type" : "mouseReleased", "x" : ) + x + S(, "y" :) + y + S(, "button" : "left" } }));
+
+            m_pressedId = 0;
+
+            return;
+        }
+    }
+    */
+
     QString docMethod = doc["method"].toString();
     if (docMethod == "Page.screencastFrame")
     {        
@@ -131,7 +157,7 @@ void EchoClient::onTextMessageReceived(const QString& message)
             S({ "id":) + num(m_id++) + S(, "method": "Page.screencastFrameAck", "params" : { "sessionId":) 
             + num(sessionId) + S(} }));
 
-        //if (m_clicked > 0) // looks like a double click
+        //if (m_pressed) // looks like a double click
         {
             // \"metadata\":{\"offsetTop\":0,\"pageScaleFactor\":1,\"deviceWidth\":800,\"deviceHeight\":600,\"scrollOffsetX\":0,\"scrollOffsetY\":0,\"timestamp\":1661238724.105544}
             /*
@@ -140,17 +166,99 @@ void EchoClient::onTextMessageReceived(const QString& message)
             const auto deviceHeight = metadata["deviceHeight"].toInt();
             */
 
-            const auto x = QStringLiteral("100");//num(deviceWidth / 2);
-            const auto y = QStringLiteral("100");//num(deviceHeight / 2 - 30);
+            /*
+            const auto x = QStringLiteral("75");//num(deviceWidth / 2);
+            const auto y = QStringLiteral("460");//num(deviceHeight / 2 - 30);
 
-            m_webSocket.sendTextMessage(
-                S({ "id": ) + num(m_id++) + S(, "method": "Input.dispatchMouseEvent",
-                    "params": { "type" : "mousePressed", "x" : ) + x + S(, "y" : ) + y + S(, "button" : "left" } }));
+            //m_webSocket.sendTextMessage(
+            //    S({ "id": ) + num(m_id++) + S(, "method": "Input.dispatchMouseEvent",
+            //        "params": { "type" : "mousePressed", "x" : ) + x + S(, "y" : ) + y + S(, "button" : "left" } }));
             m_webSocket.sendTextMessage(
                 S({ "id": ) + num(m_id++) + S(, "method": "Input.dispatchMouseEvent",
                     "params": { "type" : "mouseReleased", "x" : ) + x + S(, "y" : ) + y + S(, "button" : "left" } }));
-            //--m_clicked;
+            
+            m_pressed = false;
+            */
         }
+    }
+    else if (docMethod == "Page.frameStoppedLoading")
+    {
+        if (m_debug) {
+            qDebug() << "Message received:" << message;
+        }
+
+        const auto x = QStringLiteral("75");//num(deviceWidth / 2);
+        const auto y = QStringLiteral("460");//num(deviceHeight / 2 - 30);
+
+        //m_pressedId = m_id;
+
+        //*
+
+        if (!m_clicked)
+        {
+            m_webSocket.sendTextMessage(
+                S({ "id":) + num(m_id++) + S(, "method": "Input.dispatchMouseEvent",
+                    "params" : { "type" : "mousePressed", "x" : ) + x + S(, "y" :) + y + S(, "button" : "left", "clickCount" : 1 } }));
+            m_webSocket.sendTextMessage(
+                S({ "id":) + num(m_id++) + S(, "method": "Input.dispatchMouseEvent",
+                    "params" : { "type" : "mouseReleased", "x" : ) + x + S(, "y" :) + y + S(, "button" : "left", "clickCount" : 1 } }));
+            m_clicked = true;
+        }
+
+        /*
+        QMetaObject::invokeMethod(this, [this]
+            {
+                const auto x = QStringLiteral("75");//num(deviceWidth / 2);
+                const auto y = QStringLiteral("460");//num(deviceHeight / 2 - 30);
+
+                m_webSocket.sendTextMessage(
+                    S({ "id":) + num(m_id++) + S(, "method": "Input.dispatchMouseEvent",
+                        "params" : { "type" : "mouseReleased", "x" : ) + x + S(, "y" :) + y + S(, "button" : "left" } }));
+            }, Qt::QueuedConnection);
+
+
+        */
+
+        /*
+
+        //QMetaObject::invokeMethod(this, [this]
+        if (!m_clicked)
+        {
+            m_clicked = true;
+
+            QTimer::singleShot(5000, [this]
+                {
+                    qDebug() << "*** singleShot fired! ***\n";
+
+                    const auto x = QStringLiteral("75");//num(deviceWidth / 2);
+                    const auto y = QStringLiteral("460");//num(deviceHeight / 2 - 30);
+
+                    m_webSocket.sendTextMessage(
+                        S({ "id":) + num(m_id++) + S(, "method": "Input.dispatchMouseEvent",
+                            "params" : { "type" : "mousePressed", "x" : ) + x + S(, "y" :) + y + S(, "button" : "left", "clickCount" : 1 } }));
+
+
+                    //QMetaObject::invokeMethod(this, [this]
+                    QTimer::singleShot(500, [this]
+                        {
+                            const auto x = QStringLiteral("75");//num(deviceWidth / 2);
+                            const auto y = QStringLiteral("460");//num(deviceHeight / 2 - 30);
+
+                            m_webSocket.sendTextMessage(
+                                S({ "id":) + num(m_id++) + S(, "method": "Input.dispatchMouseEvent",
+                                    "params" : { "type" : "mouseReleased", "x" : ) + x + S(, "y" :) + y + S(, "button" : "left", "clickCount" : 1 } }));
+
+
+
+
+                        });// , Qt::QueuedConnection);
+
+
+                });// , Qt::QueuedConnection);
+        }
+
+        */
+
     }
     else
     {
