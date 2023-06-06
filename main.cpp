@@ -18,9 +18,10 @@
 static QString getWebSocketDebuggerUrl()
 {
     QNetworkAccessManager    networkAccessManager;
-    QNetworkRequest request(QStringLiteral("http://localhost:9222/json/list"));
-
-    QNetworkReply* reply = networkAccessManager.get(request);
+    //QNetworkRequest request(QStringLiteral("http://localhost:9222/json/list"));
+    //QNetworkReply* reply = networkAccessManager.get(request);
+    QNetworkRequest request(QStringLiteral("http://localhost:9222/json/new"));
+    QNetworkReply * reply = networkAccessManager.put(request, QByteArray());
 
     QEventLoop requrestWaitLoop;
 
@@ -61,17 +62,20 @@ static QString getWebSocketDebuggerUrl()
 
     auto doc = QJsonDocument::fromJson(syncResult);
 
-    return doc[0]["webSocketDebuggerUrl"].toString();
+    //return doc[0]["webSocketDebuggerUrl"].toString();
+    return doc["webSocketDebuggerUrl"].toString();
 }
 
 
 int main(int argc, char *argv[])
 {
-    if (argc < 2)
-    {
-        std::cerr << "Usage: \"" << argv[0] << "\" url\n";
-        return 1;
-    }
+    //if (argc < 2)
+    //{
+    //    std::cerr << "Usage: \"" << argv[0] << "\" url\n";
+    //    return 1;
+    //}
+
+    const char url[] = "https://starprinter.bandcamp.com/track/waves";
 
     QApplication a(argc, argv);
 
@@ -101,7 +105,7 @@ int main(int argc, char *argv[])
         webSocketDebuggerUrl = getWebSocketDebuggerUrl();
     }
 
-    EchoClient client(webSocketDebuggerUrl, argv[1], 1024, 600, true);
+    EchoClient client(webSocketDebuggerUrl, url, 1024, 600, true);
     QObject::connect(&client, &EchoClient::closed, &a, &QCoreApplication::quit);
 
     MainWindow w;

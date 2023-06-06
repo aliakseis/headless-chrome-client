@@ -194,12 +194,16 @@ void EchoClient::onTextMessageReceived(const QString& message)
 
         //*
 
-        m_webSocket.sendTextMessage(
-            S({ "id":) + num(m_id++) + S(, "method": "Input.dispatchMouseEvent",
-                "params" : { "type" : "mousePressed", "x" : ) + x + S(, "y" :) + y + S(, "button" : "left", "clickCount" : 1 } }));
-        m_webSocket.sendTextMessage(
-            S({ "id":) + num(m_id++) + S(, "method": "Input.dispatchMouseEvent",
-                "params" : { "type" : "mouseReleased", "x" : ) + x + S(, "y" :) + y + S(, "button" : "left", "clickCount" : 1 } }));
+        if (!m_clicked)
+        {
+            m_webSocket.sendTextMessage(
+                S({ "id":) + num(m_id++) + S(, "method": "Input.dispatchMouseEvent",
+                    "params" : { "type" : "mousePressed", "x" : ) + x + S(, "y" :) + y + S(, "button" : "left", "clickCount" : 1 } }));
+            m_webSocket.sendTextMessage(
+                S({ "id":) + num(m_id++) + S(, "method": "Input.dispatchMouseEvent",
+                    "params" : { "type" : "mouseReleased", "x" : ) + x + S(, "y" :) + y + S(, "button" : "left", "clickCount" : 1 } }));
+            m_clicked = true;
+        }
 
         /*
         QMetaObject::invokeMethod(this, [this]
