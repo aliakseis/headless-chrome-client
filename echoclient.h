@@ -77,7 +77,8 @@ private:
     bool m_debug;
     int m_id{};
     //int m_pressedId = 0;
-    bool m_clicked = false;
+    bool m_clicked1 = false;
+    bool m_clicked2 = false;
 
     int m_width;
     int m_height;

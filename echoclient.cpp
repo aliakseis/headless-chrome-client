@@ -187,22 +187,38 @@ void EchoClient::onTextMessageReceived(const QString& message)
             qDebug() << "Message received:" << message;
         }
 
-        const auto x = QStringLiteral("75");//num(deviceWidth / 2);
-        const auto y = QStringLiteral("460");//num(deviceHeight / 2 - 30);
+        // accept all
+        const auto x1 = QStringLiteral("500");//num(deviceWidth / 2);
+        const auto y1 = QStringLiteral("390");//num(deviceHeight / 2 - 30);
+
+        const auto x2 = QStringLiteral("75");//num(deviceWidth / 2);
+        const auto y2 = QStringLiteral("410");//num(deviceHeight / 2 - 30);
 
         //m_pressedId = m_id;
 
         //*
 
-        if (!m_clicked)
+        if (!m_clicked1)
         {
             m_webSocket.sendTextMessage(
                 S({ "id":) + num(m_id++) + S(, "method": "Input.dispatchMouseEvent",
-                    "params" : { "type" : "mousePressed", "x" : ) + x + S(, "y" :) + y + S(, "button" : "left", "clickCount" : 1 } }));
+                    "params" : { "type" : "mousePressed", "x" : ) + x1 + S(, "y" :) + y1 + S(, "button" : "left", "clickCount" : 1 } }));
             m_webSocket.sendTextMessage(
                 S({ "id":) + num(m_id++) + S(, "method": "Input.dispatchMouseEvent",
-                    "params" : { "type" : "mouseReleased", "x" : ) + x + S(, "y" :) + y + S(, "button" : "left", "clickCount" : 1 } }));
-            m_clicked = true;
+                    "params" : { "type" : "mouseReleased", "x" : ) + x1 + S(, "y" :) + y1 + S(, "button" : "left", "clickCount" : 1 } }));
+
+            m_clicked1 = true;
+        }
+        else if (!m_clicked2)
+        {
+            m_webSocket.sendTextMessage(
+                S({ "id":) + num(m_id++) + S(, "method": "Input.dispatchMouseEvent",
+                    "params" : { "type" : "mousePressed", "x" : ) + x2 + S(, "y" :) + y2 + S(, "button" : "left", "clickCount" : 1 } }));
+            m_webSocket.sendTextMessage(
+                S({ "id":) + num(m_id++) + S(, "method": "Input.dispatchMouseEvent",
+                    "params" : { "type" : "mouseReleased", "x" : ) + x2 + S(, "y" :) + y2 + S(, "button" : "left", "clickCount" : 1 } }));
+
+            m_clicked2 = true;
         }
 
         /*
@@ -266,7 +282,7 @@ void EchoClient::onTextMessageReceived(const QString& message)
             qDebug() << "Message received:" << message;
         }
     }
-    //m_webSocket.close();
+    //m_webSocket.close(); 
 }
 //! [onTextMessageReceived]
 
